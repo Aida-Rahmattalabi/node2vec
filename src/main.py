@@ -27,8 +27,8 @@ def parse_args():
 	parser.add_argument('--output', nargs='?', default='emb/karate.emb',
 	                    help='Embeddings path')
 
-	parser.add_argument('--dimensions', type=int, default=128,
-	                    help='Number of dimensions. Default is 128.')
+	parser.add_argument('--dimensions', type=int, default=2,
+	                    help='Number of dimensions. Default is 2.')
 
 	parser.add_argument('--walk-length', type=int, default=80,
 	                    help='Length of walk per source. Default is 80.')
@@ -54,7 +54,7 @@ def parse_args():
 	parser.add_argument('--weighted', dest='weighted', action='store_true',
 	                    help='Boolean specifying (un)weighted. Default is unweighted.')
 	parser.add_argument('--unweighted', dest='unweighted', action='store_false')
-	parser.set_defaults(weighted=False)
+	parser.set_defaults(weighted=True)
 
 	parser.add_argument('--directed', dest='directed', action='store_true',
 	                    help='Graph is (un)directed. Default is undirected.')
@@ -68,7 +68,9 @@ def read_graph():
 	Reads the input network in networkx.
 	'''
 	if args.weighted:
-		G = nx.read_edgelist(args.input, nodetype=int, data=(('weight',float),), create_using=nx.DiGraph())
+		#G = nx.read_edgelist(args.input, nodetype=int, data=(('weight',float),), create_using=nx.DiGraph())
+		G = nx.read_edgelist(args.input, nodetype=int, create_using=nx.DiGraph())
+
 	else:
 		G = nx.read_edgelist(args.input, nodetype=int, create_using=nx.DiGraph())
 		for edge in G.edges():
@@ -85,7 +87,7 @@ def learn_embeddings(walks):
 	'''
 	walks = [map(str, walk) for walk in walks]
 	model = Word2Vec(walks, size=args.dimensions, window=args.window_size, min_count=0, sg=1, workers=args.workers, iter=args.iter)
-	model.save_word2vec_format(args.output)
+	model.wv.save_word2vec_format(args.output)
 	
 	return
 
